@@ -31,5 +31,7 @@
 *.out
 *.app
 
-# Vscode
-vecode/
+.vs/
+.vscode/
+
+Debug/
