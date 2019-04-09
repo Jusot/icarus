@@ -1,6 +1,8 @@
 #ifndef ICARUS_HPP
 #define ICARUS_HPP
 
+#include <cassert>
+
 #include <thread>
 
 #include "noncopyable.hpp"
