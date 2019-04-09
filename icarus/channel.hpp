@@ -16,7 +16,7 @@ class Channel : noncopyable
 
     Channel(EventLoop *loop, int fd);
 
-    void handleEvent();
+    void handle_event();
 
     void set_read_callback(EventCallback cb);
     void set_write_callback(EventCallback cb);
@@ -28,6 +28,7 @@ class Channel : noncopyable
     bool is_none_event() const;
 
     void enable_reading();
+    void disable_reading();
     void enable_writing();
     void disable_writing();
     void disable_all();

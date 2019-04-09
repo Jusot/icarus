@@ -19,7 +19,7 @@ Channel::Channel(EventLoop* loop, int fd)
     // ...
 }
 
-void Channel::handleEvent()
+void Channel::handle_event()
 {
     if (revents_ & POLLNVAL)
     {
@@ -87,6 +87,12 @@ bool Channel::is_none_event() const
 void Channel::enable_reading()
 {
     events_ |= kReadEvent;
+    update();
+}
+
+void Channel::disable_reading()
+{
+    events_ &= ~kReadEvent;
     update();
 }
 
