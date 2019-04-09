@@ -1,7 +1,14 @@
-#include "icarus.hpp"
+#include <poll.h>
+
+#include "eventloop.hpp"
+#include "channel.hpp"
 
 namespace icarus
 {
+const int Channel::kNoneEvent = 0;
+const int Channel::kReadEvent = POLLIN | POLLPRI;
+const int Channel::kWriteEvent = POLLOUT;
+
 Channel::Channel(EventLoop* loop, int fd)
   : loop_(loop),
     fd_(fd),
