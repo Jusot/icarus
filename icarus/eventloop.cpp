@@ -32,9 +32,9 @@ void EventLoop::loop()
     assert_in_loop_thread();
     looping_ = true;
 
-	::poll(nullptr, 0, 5 * 1000);
+    ::poll(nullptr, 0, 5 * 1000);
 
-	looping_ = false;
+    looping_ = false;
 }
 
 void EventLoop::assert_in_loop_thread()
