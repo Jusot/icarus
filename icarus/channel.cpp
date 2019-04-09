@@ -42,19 +42,19 @@ void Channel::handleEvent()
     }
 }
 
-void Channel::set_read_callback(const EventCallback& cb)
+void Channel::set_read_callback(EventCallback cb)
 {
-    read_callback_ = cb;
+    read_callback_ = std::move(cb);
 }
 
-void Channel::set_write_callback(const EventCallback& cb)
+void Channel::set_write_callback(EventCallback cb)
 {
-    write_callback_ = cb;
+    write_callback_ = std::move(cb);
 }
 
-void Channel::set_error_callback(const EventCallback& cb)
+void Channel::set_error_callback(EventCallback cb)
 {
-    error_callback_ = cb;
+    error_callback_ = std::move(cb);
 }
 
 int Channel::fd() const

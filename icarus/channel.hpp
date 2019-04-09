@@ -12,9 +12,9 @@ class Channel : noncopyable
 
     void handleEvent();
 
-    void set_read_callback(const EventCallback &cb);
-    void set_write_callback(const EventCallback &cb);
-    void set_error_callback(const EventCallback &cb);
+    void set_read_callback(EventCallback cb);
+    void set_write_callback(EventCallback cb);
+    void set_error_callback(EventCallback cb);
 
     int fd() const;
     int events() const;
