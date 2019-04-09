@@ -1,6 +1,5 @@
 #include "icarus.hpp"
 
-#include <poll.h>
 #include <cstdlib>
 
 namespace icarus
