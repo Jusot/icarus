@@ -1,6 +1,10 @@
 #ifndef ICARUS_EVENTLOOP_HPP
 #define ICARUS_EVENTLOOP_HPP
 
+#include <thread>
+
+#include "noncopyable.hpp"
+
 namespace icarus
 {
 class EventLoop : noncopyable

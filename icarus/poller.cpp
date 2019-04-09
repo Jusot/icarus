@@ -1,4 +1,9 @@
-#include "icarus.hpp"
+#include <poll.h>
+#include <cassert>
+
+#include "eventloop.hpp"
+#include "channel.hpp"
+#include "poller.hpp"
 
 namespace icarus
 {

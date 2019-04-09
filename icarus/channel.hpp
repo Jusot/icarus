@@ -1,8 +1,14 @@
 #ifndef ICARUS_CHANNEL_HPP
 #define ICARUS_CHANNEL_HPP
 
+#include <functional>
+
+#include "noncopyable.hpp"
+
 namespace icarus
 {
+class EventLoop;
+
 class Channel : noncopyable
 {
   public:
@@ -35,9 +41,9 @@ class Channel : noncopyable
   private:
     void update();
 
-    static const int kNoneEvent = 0;
-    static const int kReadEvent = POLLIN | POLLPRI;
-    static const int kWriteEvent = POLLOUT;
+    static const int kNoneEvent;
+    static const int kReadEvent;
+    static const int kWriteEvent;
 
     EventLoop *loop_;
     const int  fd_;

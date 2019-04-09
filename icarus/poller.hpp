@@ -1,9 +1,19 @@
 #ifndef ICARUS_POLLER_HPP
 #define ICARUS_POLLER_HPP
 
+#include <map>
+#include <vector>
+
+#include "noncopyable.hpp"
+
+struct pollfd;
+
 namespace icarus
 {
-class Poller
+class EventLoop;
+class Channel;
+
+class Poller : noncopyable
 {
   public:
     using ChannelList = std::vector<Channel *>;
