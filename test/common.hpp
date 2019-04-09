@@ -12,7 +12,7 @@
 struct Assert
 {
 template <typename T1, typename T2>
-static void AreEqual(const T1 & a, const T2 & b)
+static void AreEqual(const T1 &a, const T2 &b)
 {
     assert(a == b);
 }
