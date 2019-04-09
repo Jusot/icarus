@@ -42,6 +42,80 @@ void Channel::handleEvent()
     }
 }
 
+void Channel::set_read_callback(const EventCallback& cb)
+{
+    read_callback_ = cb;
+}
+
+void Channel::set_write_callback(const EventCallback& cb)
+{
+    write_callback_ = cb;
+}
+
+void Channel::set_error_callback(const EventCallback& cb)
+{
+    error_callback_ = cb;
+}
+
+int Channel::fd() const
+{
+    return fd_;
+}
+
+int Channel::events() const
+{
+    return events_;
+}
+
+void Channel::set_revents(int revents)
+{
+    revents_ = revents;
+}
+
+bool Channel::is_none_event() const
+{
+    return events_ == kNoneEvent;
+}
+
+void Channel::enable_reading()
+{
+    events_ |= kReadEvent;
+    update();
+}
+
+void Channel::enable_writing()
+{
+    events_ |= kWriteEvent;
+    update();
+}
+
+void Channel::disable_writing()
+{
+    events_ &= ~kWriteEvent; 
+    update();
+}
+
+void Channel::disable_all()
+{
+    events_ = kNoneEvent;
+    update();
+}
+
+int Channel::index()
+{
+    return index_;
+}
+
+void Channel::set_index(int index)
+{
+    index_ = index;
+}
+
+EventLoop *Channel::owner_loop()
+{
+    return loop_;
+}
+
 void Channel::update()
 {
     // loop_->update_channel(this);
