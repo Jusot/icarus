@@ -56,6 +56,12 @@ void EventLoop::loop()
     looping_ = false;
 }
 
+void EventLoop::quit()
+{
+    quit_ = true;
+    // wakeup();
+}
+
 void EventLoop::assert_in_loop_thread()
 {
     if (!is_in_loop_thread())

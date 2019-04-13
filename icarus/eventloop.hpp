@@ -24,6 +24,9 @@ class EventLoop : noncopyable
     // main loop
     void loop();
 
+    // quits loop
+    void quit();
+
     // assert current thread is in loop thread or not
     void assert_in_loop_thread();
 
