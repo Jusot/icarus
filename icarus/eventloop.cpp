@@ -62,6 +62,13 @@ void EventLoop::quit()
     // wakeup();
 }
 
+void EventLoop::update_channel(Channel *channel)
+{
+    assert(channel->owner_loop() == this);
+    assert_in_loop_thread();
+    poller_->update_channel(channel);
+}
+
 void EventLoop::assert_in_loop_thread()
 {
     if (!is_in_loop_thread())
