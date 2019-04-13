@@ -1,12 +1,17 @@
 #ifndef ICARUS_EVENTLOOP_HPP
 #define ICARUS_EVENTLOOP_HPP
 
+#include <vector>
 #include <thread>
+#include <memory>
 
 #include "noncopyable.hpp"
 
 namespace icarus
 {
+class Channel;
+class Poller;
+
 class EventLoop : noncopyable
 {
   public:
@@ -32,8 +37,13 @@ class EventLoop : noncopyable
     // abort when not in loop thread
     void abort_not_in_loop_thread();
 
+    using ChannelList = std::vector<Channel *>;
+
     bool looping_;
+    bool quit_;
     const std::thread::id thread_id_;
+    std::unique_ptr<Poller> poller_;
+    ChannelList active_channels_;
 };
 } // namespace icarus
 

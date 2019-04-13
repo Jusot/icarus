@@ -2,15 +2,23 @@
 #include <cassert>
 #include <cstdlib>
 
+#include "poller.hpp"
+#include "channel.hpp"
 #include "eventloop.hpp"
 
-namespace icarus
+using namespace icarus;
+
+namespace
 {
 thread_local EventLoop *t_loop_in_this_thread = nullptr;
 
+constexpr int kPollTimeMs = 10000;
+
 EventLoop::EventLoop()
   : looping_(false),
-    thread_id_(std::this_thread::get_id())
+    quit_(false),
+    thread_id_(std::this_thread::get_id()),
+    poller_(std::make_unique<Poller>(this))
 {
     if (t_loop_in_this_thread)
     {
@@ -33,8 +41,17 @@ void EventLoop::loop()
     assert(!looping_);
     assert_in_loop_thread();
     looping_ = true;
+    quit_ = false;
 
-    ::poll(nullptr, 0, 5 * 1000);
+    while (!quit_)
+    {
+        active_channels_.clear();
+        poller_->poll(kPollTimeMs, &active_channels_);
+        for (auto &channel : active_channels_)
+        {
+            channel->handle_event();
+        }
+    }
 
     looping_ = false;
 }
