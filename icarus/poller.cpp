@@ -5,8 +5,8 @@
 #include "channel.hpp"
 #include "poller.hpp"
 
-namespace icarus
-{
+using namespace icarus;
+
 Poller::Poller(EventLoop *loop)
   : owner_loop_(loop)
 {
@@ -92,5 +92,4 @@ void Poller::fill_active_channels(int num_events, ChannelList *active_channels) 
 void Poller::assert_in_loop_thread()
 {
     owner_loop_->assert_in_loop_thread();
-}
 }

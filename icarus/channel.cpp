@@ -3,8 +3,8 @@
 #include "eventloop.hpp"
 #include "channel.hpp"
 
-namespace icarus
-{
+using namespace icarus;
+
 const int Channel::kNoneEvent = 0;
 const int Channel::kReadEvent = POLLIN | POLLPRI;
 const int Channel::kWriteEvent = POLLOUT;
@@ -104,7 +104,7 @@ void Channel::enable_writing()
 
 void Channel::disable_writing()
 {
-    events_ &= ~kWriteEvent; 
+    events_ &= ~kWriteEvent;
     update();
 }
 
@@ -132,5 +132,4 @@ EventLoop *Channel::owner_loop()
 void Channel::update()
 {
     // loop_->update_channel(this);
-}
 }
