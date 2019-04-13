@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <chrono>
 
 #include "noncopyable.hpp"
 
@@ -22,7 +23,7 @@ class Poller : noncopyable
 
     ~Poller();
 
-    // Timestamp poll(int timeout_ms, ChannelList *active_channels);
+    std::chrono::system_clock::time_point poll(int timeout_ms, ChannelList *active_channels);
 
     void update_channel(Channel *channel);
 

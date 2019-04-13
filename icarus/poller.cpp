@@ -18,7 +18,22 @@ Poller::~Poller()
     // ...
 }
 
-// Timestamp Poller::poll(int timeout_ms, ChannelList *active_channels);
+std::chrono::system_clock::time_point Poller::poll(int timeout_ms, ChannelList *active_channels)
+{
+    auto num_events = ::poll(&pollfds_[0], pollfds_.size(), timeout_ms);
+    auto now = std::chrono::system_clock::now();
+    
+    if (num_events > 0)
+    {
+        fill_active_channels(num_events, active_channels);
+    }
+    else if (num_events < 0)
+    {
+        abort();
+    }
+
+    return now;
+}
 
 void Poller::update_channel(Channel *channel)
 {
