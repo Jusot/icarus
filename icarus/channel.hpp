@@ -23,8 +23,8 @@ class Channel : noncopyable
     void set_error_callback(EventCallback cb);
 
     int fd() const;
-    int events() const;
-    void set_revents(int revents);
+    short events() const;
+    void set_revents(short revents);
     bool is_none_event() const;
 
     void enable_reading();
@@ -47,10 +47,10 @@ class Channel : noncopyable
     static const int kWriteEvent;
 
     EventLoop *loop_;
-    const int  fd_;
-    int        events_;
-    int        revents_;
     int        index_;
+    const int  fd_;
+    short      events_;
+    short      revents_;
 
     EventCallback read_callback_;
     EventCallback write_callback_;

@@ -22,7 +22,7 @@ std::chrono::system_clock::time_point Poller::poll(int timeout_ms, ChannelList *
 {
     auto num_events = ::poll(&pollfds_[0], pollfds_.size(), timeout_ms);
     auto now = std::chrono::system_clock::now();
-    
+
     if (num_events > 0)
     {
         fill_active_channels(num_events, active_channels);
@@ -41,16 +41,38 @@ void Poller::update_channel(Channel *channel)
     if (channel->index() < 0)
     {
         // a new one, add to pollfds_
+        assert(channels_.find(channel->fd()) == channels_.end());
+        pollfds_.push_back({
+            channel->fd(),
+            channel->events(),
+            0 // revents
+        });
+        int idx = static_cast<int>(pollfds_.size()) - 1;
+        channel->set_index(idx);
+        channels_[channel->fd()] = channel;
     }
-    else 
+    else
     {
         // update existing one
+        assert(channels_.find(channel->fd()) != channels_.end());
+        assert(channels_[channel->fd()] == channel);
+        int idx = channel->index();
+        assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
+        auto &pfd = pollfds_[idx];
+        assert(pfd.fd == channel->fd() || pfd.fd == -1);
+        pfd.events = channel->events();
+        pfd.revents = 0;
+        if (channel->is_none_event())
+        {
+            // ignore this pollfd
+            pfd.fd = -1;
+        }
     }
 }
 
 void Poller::fill_active_channels(int num_events, ChannelList *active_channels) const
 {
-    for (auto pfd = pollfds_.begin(); 
+    for (auto pfd = pollfds_.begin();
         pfd != pollfds_.end() && num_events > 0; ++pfd)
     {
         if (pfd->revents > 0)

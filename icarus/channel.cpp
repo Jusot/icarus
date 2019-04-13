@@ -69,12 +69,12 @@ int Channel::fd() const
     return fd_;
 }
 
-int Channel::events() const
+short Channel::events() const
 {
     return events_;
 }
 
-void Channel::set_revents(int revents)
+void Channel::set_revents(short revents)
 {
     revents_ = revents;
 }
