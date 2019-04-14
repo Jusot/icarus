@@ -131,5 +131,5 @@ EventLoop *Channel::owner_loop()
 
 void Channel::update()
 {
-    // loop_->update_channel(this);
+    loop_->update_channel(this);
 }
