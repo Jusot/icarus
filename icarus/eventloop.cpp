@@ -1,6 +1,7 @@
-#include <poll.h>
 #include <cassert>
 #include <cstdlib>
+
+#include <poll.h>
 
 #include "poller.hpp"
 #include "channel.hpp"
@@ -13,6 +14,7 @@ namespace
 thread_local EventLoop *t_loop_in_this_thread = nullptr;
 
 constexpr int kPollTimeMs = 10000;
+} // namespace
 
 EventLoop::EventLoop()
   : looping_(false),
@@ -86,4 +88,8 @@ EventLoop *EventLoop::get_event_loop_of_current_thread()
 {
     return t_loop_in_this_thread;
 }
-} // namespace icarus
+
+void EventLoop::abort_not_in_loop_thread()
+{
+    abort();
+}

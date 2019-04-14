@@ -1,7 +1,7 @@
 #include <poll.h>
 
-#include "eventloop.hpp"
 #include "channel.hpp"
+#include "eventloop.hpp"
 
 using namespace icarus;
 
@@ -11,10 +11,10 @@ const int Channel::kWriteEvent = POLLOUT;
 
 Channel::Channel(EventLoop* loop, int fd)
   : loop_(loop),
+    index_(-1),
     fd_(fd),
     events_(0),
-    revents_(0),
-    index_(-1)
+    revents_(0)
 {
     // ...
 }
