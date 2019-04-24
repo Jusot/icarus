@@ -64,7 +64,7 @@ uint16_t InetAddress::toPort() const
     return ::ntohs(addr_.sin_port);
 }
 
-const struct sockaddr *InetAddress::getSockaddr() const
+const struct sockaddr *InetAddress::getSockAddr() const
 {
     return reinterpret_cast<const struct sockaddr *>(&addr_);
 }
