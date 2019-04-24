@@ -69,6 +69,11 @@ const struct sockaddr *InetAddress::getSockaddr() const
     return reinterpret_cast<const struct sockaddr *>(&addr_);
 }
 
+void InetAddress::setSockAddr(const struct sockaddr_in& addr)
+{
+    addr_ = addr;
+}
+
 uint32_t InetAddress::ipNetEndian() const
 {
     return addr_.sin_addr.s_addr;

@@ -21,6 +21,7 @@ class InetAddress
     uint16_t toPort() const;
 
     const struct sockaddr *getSockaddr() const;
+    void setSockAddr(const struct sockaddr_in& addr);
 
     uint32_t ipNetEndian() const;
     uint16_t portNetEndian() const;
