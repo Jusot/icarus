@@ -22,7 +22,7 @@ class EventLoopThread : noncopyable
     ~EventLoopThread();
     
     EventLoop *start_loop();
-  
+
   private:
     void thread_func();
 
