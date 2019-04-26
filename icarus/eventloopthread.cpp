@@ -5,7 +5,7 @@
 
 using namespace icarus;
 
-EventLoopThread::EventLoopThread(const ThreadInitCallback& cb, const std::string& name)
+EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
   : loop_(nullptr), 
     exiting_(false), 
     callback_(cb)
