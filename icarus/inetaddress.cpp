@@ -17,9 +17,9 @@
 namespace icarus
 {
 
-InetAddress::InetAddress(uint16_t port, bool loopbackOnly)
+InetAddress::InetAddress(uint16_t port, bool loopback_only)
 {
-    in_addr_t net_ip = ::htonl(loopbackOnly ? INADDR_LOOPBACK : INADDR_ANY);
+    in_addr_t net_ip = ::htonl(loopback_only ? INADDR_LOOPBACK : INADDR_ANY);
     in_port_t net_port = ::htons(port);
     INIT_ADDR(net_ip, net_port);
 }

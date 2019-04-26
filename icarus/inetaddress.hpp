@@ -11,7 +11,7 @@ namespace icarus
 class InetAddress
 {
   public:
-    explicit InetAddress(uint16_t port = 0, bool loopbackOnly = false);
+    explicit InetAddress(uint16_t port = 0, bool loopback_only = false);
     InetAddress(const char *ip, uint16_t port);
     explicit InetAddress(const struct sockaddr_in &addr);
 
