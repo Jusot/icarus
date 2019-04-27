@@ -12,6 +12,7 @@ class Socket : noncopyable
 {
   public:
     explicit Socket(int sockfd);
+    ~Socket();
 
     int fd() const;
     bool get_tcp_info(struct tcp_info*) const;

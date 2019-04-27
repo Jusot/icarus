@@ -14,6 +14,11 @@ Socket::Socket(int sockfd)
 {
 }
 
+Socket::~Socket()
+{
+    sockets::close(sockfd_);
+}
+
 int Socket::fd() const
 {
     return sockfd_;
