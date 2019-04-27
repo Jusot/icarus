@@ -42,6 +42,7 @@ class Channel : noncopyable
     void set_index(int index);
 
     EventLoop *owner_loop();
+    void remove();
 
   private:
     void update();
