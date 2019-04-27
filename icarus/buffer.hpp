@@ -18,9 +18,9 @@ class Buffer
 
     void swap(Buffer& rhs);
 
-    size_t readableBytes() const;
-    size_t writableBytes() const;
-    size_t prependableBytes() const;
+    size_t readable_bytes() const;
+    size_t writable_bytes() const;
+    size_t prependable_bytes() const;
 
     const char* peek() const;
 
@@ -30,60 +30,60 @@ class Buffer
     const char* findEOL(const char* start) const;
 
     void retrieve(size_t len);
-    void retrieveUntil(const char* end);
-    void retrieveInt64();
-    void retrieveInt32();
-    void retrieveInt16();
-    void retrieveInt8();
-    void retrieveAll();
+    void retrieve_until(const char* end);
+    void retrieve_int64();
+    void retrieve_int32();
+    void retrieve_int16();
+    void retrieve_int8();
+    void retrieve_all();
 
-    std::string retrieveAllAsString();
-    std::string retrieveAsString(size_t len);
-    std::string_view toStringView() const;
+    std::string retrieve_all_as_string();
+    std::string retrieve_as_string(size_t len);
+    std::string_view to_string_view() const;
 
     void append(const std::string_view& str);
     void append(const char* data, size_t len);
     void append(const void* data, size_t len);
 
-    void ensureWritableBytes(size_t len);
+    void ensure_writable_bytes(size_t len);
 
-    char* beginWrite();
-    const char* beginWrite() const;
+    char* begin_write();
+    const char* begin_write() const;
 
-    void hasWritten(size_t len);
+    void has_written(size_t len);
     void unwrite(size_t len);
 
-    void appendInt64(int64_t x);
-    void appendInt32(int32_t x);
-    void appendInt16(int16_t x);
-    void appendInt8(int8_t x);
+    void append_int64(int64_t x);
+    void append_int32(int32_t x);
+    void append_int16(int16_t x);
+    void append_int8(int8_t x);
 
-    int64_t readInt64();
-    int32_t readInt32();
-    int16_t readInt16();
-    int8_t  readInt8();
+    int64_t read_int64();
+    int32_t read_int32();
+    int16_t read_int16();
+    int8_t  read_int8();
 
-    int64_t peekInt64() const;
-    int32_t peekInt32() const;
-    int16_t peekInt16() const;
-    int8_t  peekInt8() const;
+    int64_t peek_int64() const;
+    int32_t peek_int32() const;
+    int16_t peek_int16() const;
+    int8_t  peek_int8() const;
 
-    void prependInt64(int64_t x);
-    void prependInt32(int32_t x);
-    void prependInt16(int16_t x);
-    void prependInt8(int8_t x);
+    void prepend_int64(int64_t x);
+    void prepend_int32(int32_t x);
+    void prepend_int16(int16_t x);
+    void prepend_int8(int8_t x);
     void prepend(const void* data, size_t len);
 
     void shrink(size_t reserve);
 
-    size_t internalCapacity() const;
+    size_t internal_capacity() const;
 
-    ssize_t readFd(int fd, int* saved_errno);
+    ssize_t read_fd(int fd, int* saved_errno);
 
   private:
     char* begin();
     const char* begin() const;
-    void makeSpace(size_t len);
+    void make_space(size_t len);
 
   private:
     std::vector<char> buffer_;

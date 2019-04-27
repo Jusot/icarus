@@ -14,20 +14,20 @@ class Socket : noncopyable
     explicit Socket(int sockfd);
 
     int fd() const;
-    bool getTcpInfo(struct tcp_info*) const;
-    bool getTcpinfoString(char* buf, int len) const;
+    bool get_tcp_info(struct tcp_info*) const;
+    bool get_tcp_info_string(char* buf, int len) const;
 
-    void bindAddress(const InetAddress& localaddr);
+    void bind_address(const InetAddress& localaddr);
     void listen();
 
     int accept(InetAddress* peeraddr);
 
-    void shutdownWrite();
+    void shutdown_write();
 
-    void setTcpNoDelay(bool on);
-    void setReuseAddr(bool on);
-    void setReusePort(bool on);
-    void setKeepAlive(bool on);
+    void set_tcp_no_delay(bool on);
+    void set_reuse_addr(bool on);
+    void set_reuse_port(bool on);
+    void set_keep_alive(bool on);
 
   private:
     const int sockfd_;

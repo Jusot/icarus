@@ -19,17 +19,17 @@ int Socket::fd() const
     return sockfd_;
 }
 
-bool Socket::getTcpInfo(struct tcp_info *tcp_info) const
+bool Socket::get_tcp_info(struct tcp_info *tcp_info) const
 {
     socklen_t len = sizeof(*tcp_info);
     ::memset(tcp_info, 0, len);
     return ::getsockopt(sockfd_, SOL_TCP, TCP_INFO, tcp_info, &len) == 0;
 }
 
-bool Socket::getTcpinfoString(char *buf, int len) const
+bool Socket::get_tcp_info_string(char *buf, int len) const
 {
     struct tcp_info tcp_info;
-    bool ok = getTcpInfo(&tcp_info);
+    bool ok = get_tcp_info(&tcp_info);
     if (ok)
     {
         snprintf(buf, len, "unrecovered=%u "
@@ -52,14 +52,14 @@ bool Socket::getTcpinfoString(char *buf, int len) const
     return ok;
 }
 
-void Socket::bindAddress(const InetAddress &localaddr)
+void Socket::bind_address(const InetAddress &localaddr)
 {
-    sockets::bindOrDie(sockfd_, localaddr.getSockAddr());
+    sockets::bind_or_die(sockfd_, localaddr.get_sock_addr());
 }
 
 void Socket::listen()
 {
-    sockets::listenOrDie(sockfd_);
+    sockets::listen_or_die(sockfd_);
 }
 
 int Socket::accept(InetAddress *peeraddr)
@@ -69,14 +69,14 @@ int Socket::accept(InetAddress *peeraddr)
     int connfd = sockets::accept(sockfd_, &addr);
     if (connfd >= 0)
     {
-        peeraddr->setSockAddr(addr);
+        peeraddr->set_sock_addr(addr);
     }
     return connfd;
 }
 
-void Socket::shutdownWrite()
+void Socket::shutdown_write()
 {
-    sockets::shutdownWrite(sockfd_);
+    sockets::shutdown_write(sockfd_);
 }
 
 #define SET_TCP_OPTION(LEVEL, OPT_NAME)                       \
@@ -87,22 +87,22 @@ void Socket::shutdownWrite()
                      static_cast<socklen_t>(sizeof(optval))); \
     } while (0)
 
-void Socket::setTcpNoDelay(bool on)
+void Socket::set_tcp_no_delay(bool on)
 {
     SET_TCP_OPTION(IPPROTO_TCP, TCP_NODELAY);
 }
 
-void Socket::setReuseAddr(bool on)
+void Socket::set_reuse_addr(bool on)
 {
     SET_TCP_OPTION(SOL_SOCKET, SO_REUSEADDR);
 }
 
-void Socket::setReusePort(bool on)
+void Socket::set_reuse_port(bool on)
 {
     SET_TCP_OPTION(SOL_SOCKET, SO_REUSEPORT);
 }
 
-void Socket::setKeepAlive(bool on)
+void Socket::set_keep_alive(bool on)
 {
     SET_TCP_OPTION(SOL_SOCKET, SO_KEEPALIVE);
 }

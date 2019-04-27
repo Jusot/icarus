@@ -14,9 +14,9 @@ Buffer::Buffer(size_t initialize_size)
     reader_index_(kCheapPrepend),
     writer_index_(kCheapPrepend)
 {
-    assert(readableBytes() == 0);
-    assert(writableBytes() == 0);
-    assert(prependableBytes() == 0);
+    assert(readable_bytes() == 0);
+    assert(writable_bytes() == 0);
+    assert(prependable_bytes() == 0);
 }
 
 void Buffer::swap(Buffer& rhs)
@@ -26,17 +26,17 @@ void Buffer::swap(Buffer& rhs)
     std::swap(writer_index_, rhs.writer_index_);
 }
 
-size_t Buffer::readableBytes() const
+size_t Buffer::readable_bytes() const
 {
     return writer_index_ - reader_index_;
 }
 
-size_t Buffer::writableBytes() const
+size_t Buffer::writable_bytes() const
 {
     return buffer_.size() - writer_index_;
 }
 
-size_t Buffer::prependableBytes() const
+size_t Buffer::prependable_bytes() const
 {
     return reader_index_;
 }
@@ -48,94 +48,94 @@ const char* Buffer::peek() const
 
 const char* Buffer::findCRLF() const
 {
-    const char* crlf = std::search(peek(), beginWrite(), kCRLF, kCRLF + 2);
-    return crlf == beginWrite() ? nullptr : crlf;
+    const char* crlf = std::search(peek(), begin_write(), kCRLF, kCRLF + 2);
+    return crlf == begin_write() ? nullptr : crlf;
 }
 
 const char* Buffer::findCRLF(const char* start) const
 {
     assert(peek() <= start);
-    assert(start <= beginWrite());
-    const char* crlf = std::search(start, beginWrite(), kCRLF, kCRLF + 2);
-    return crlf == beginWrite() ? nullptr : crlf;
+    assert(start <= begin_write());
+    const char* crlf = std::search(start, begin_write(), kCRLF, kCRLF + 2);
+    return crlf == begin_write() ? nullptr : crlf;
 }
 
 const char* Buffer::findEOL() const
 {
-    const void* eol = memchr(peek(), '\n', readableBytes());
+    const void* eol = memchr(peek(), '\n', readable_bytes());
     return static_cast<const char*>(eol);
 }
 
 const char* Buffer::findEOL(const char* start) const
 {
     assert(peek() <= start);
-    assert(start <= beginWrite());
-    const void* eol = memchr(start, '\n', beginWrite() - start);
+    assert(start <= begin_write());
+    const void* eol = memchr(start, '\n', begin_write() - start);
     return static_cast<const char*>(eol);
 }
 
 void Buffer::retrieve(size_t len)
 {
-    assert(len <= readableBytes());
-    if (len < readableBytes())
+    assert(len <= readable_bytes());
+    if (len < readable_bytes())
     {
         reader_index_ += len;
     }
     else
     {
-        retrieveAll();
+        retrieve_all();
     }
 }
 
-void Buffer::retrieveUntil(const char* end)
+void Buffer::retrieve_until(const char* end)
 {
     assert(peek() <= end);
-    assert(end <= beginWrite());
+    assert(end <= begin_write());
     retrieve(end - peek());
 }
 
-void Buffer::retrieveInt64()
+void Buffer::retrieve_int64()
 {
     retrieve(sizeof(int64_t));
 }
 
-void Buffer::retrieveInt32()
+void Buffer::retrieve_int32()
 {
     retrieve(sizeof(int32_t));
 }
 
-void Buffer::retrieveInt16()
+void Buffer::retrieve_int16()
 {
     retrieve(sizeof(int16_t));
 }
 
-void Buffer::retrieveInt8()
+void Buffer::retrieve_int8()
 {
     retrieve(sizeof(int8_t));
 }
 
-void Buffer::retrieveAll()
+void Buffer::retrieve_all()
 {
     reader_index_ = kCheapPrepend;
     writer_index_ = kCheapPrepend;
 }
 
-std::string Buffer::retrieveAllAsString()
+std::string Buffer::retrieve_all_as_string()
 {
-    return retrieveAsString(readableBytes());
+    return retrieve_as_string(readable_bytes());
 }
 
-std::string Buffer::retrieveAsString(size_t len)
+std::string Buffer::retrieve_as_string(size_t len)
 {
-    assert(len <= readableBytes());
+    assert(len <= readable_bytes());
     std::string result(peek(), len);
     retrieve(len);
     return result;
 }
 
-std::string_view Buffer::toStringView() const
+std::string_view Buffer::to_string_view() const
 {
-    return std::string_view(peek(), readableBytes());
+    return std::string_view(peek(), readable_bytes());
 }
 
 void Buffer::append(const std::string_view& str)
@@ -145,9 +145,9 @@ void Buffer::append(const std::string_view& str)
 
 void Buffer::append(const char* data, size_t len)
 {
-    ensureWritableBytes(len);
-    std::copy(data, data+len, beginWrite());
-    hasWritten(len);
+    ensure_writable_bytes(len);
+    std::copy(data, data+len, begin_write());
+    has_written(len);
 }
 
 void Buffer::append(const void* data, size_t len)
@@ -155,146 +155,146 @@ void Buffer::append(const void* data, size_t len)
     append(static_cast<const char*>(data), len);
 }
 
-void Buffer::ensureWritableBytes(size_t len)
+void Buffer::ensure_writable_bytes(size_t len)
 {
-    if (writableBytes() < len)
+    if (writable_bytes() < len)
     {
-        makeSpace(len);
+        make_space(len);
     }
-    assert(writableBytes() >= len);
+    assert(writable_bytes() >= len);
 }
 
-char* Buffer::beginWrite()
+char* Buffer::begin_write()
 {
     return begin() + writer_index_;
 }
 
-const char* Buffer::beginWrite() const
+const char* Buffer::begin_write() const
 {
     return begin() + writer_index_;
 }
 
-void Buffer::hasWritten(size_t len)
+void Buffer::has_written(size_t len)
 {
-    assert(len <= writableBytes());
+    assert(len <= writable_bytes());
     writer_index_ += len;
 }
 
 void Buffer::unwrite(size_t len)
 {
-    assert(len <= readableBytes());
+    assert(len <= readable_bytes());
     writer_index_ -= len;
 }
 
-void Buffer::appendInt64(int64_t x)
+void Buffer::append_int64(int64_t x)
 {
-    int64_t be64 = sockets::hostToNetwork64(x);
+    int64_t be64 = sockets::host_to_network64(x);
     append(static_cast<const void*>(&be64), sizeof(be64));
 }
 
-void Buffer::appendInt32(int32_t x)
+void Buffer::append_int32(int32_t x)
 {
-    int32_t be32 = sockets::hostToNetwork32(x);
+    int32_t be32 = sockets::host_to_network32(x);
     append(static_cast<const void*>(&be32), sizeof(be32));
 }
 
-void Buffer::appendInt16(int16_t x)
+void Buffer::append_int16(int16_t x)
 {
-    int16_t be16 = sockets::hostToNetwork16(x);
+    int16_t be16 = sockets::host_to_network16(x);
     append(static_cast<const void*>(&be16), sizeof(be16));
 }
 
-void Buffer::appendInt8(int8_t x)
+void Buffer::append_int8(int8_t x)
 {
     append(static_cast<const void*>(&x), sizeof(x));
 }
 
-int64_t Buffer::readInt64()
+int64_t Buffer::read_int64()
 {
-    int64_t result = peekInt64();
-    retrieveInt64();
+    int64_t result = peek_int64();
+    retrieve_int64();
     return result;
 }
 
-int32_t Buffer::readInt32()
+int32_t Buffer::read_int32()
 {
-    int32_t result = peekInt32();
-    retrieveInt32();
+    int32_t result = peek_int32();
+    retrieve_int32();
     return result;
 }
 
-int16_t Buffer::readInt16()
+int16_t Buffer::read_int16()
 {
-    int16_t result = peekInt16();
-    retrieveInt16();
+    int16_t result = peek_int16();
+    retrieve_int16();
     return result;
 }
 
-int8_t Buffer::readInt8()
+int8_t Buffer::read_int8()
 {
-    int8_t result = peekInt8();
-    retrieveInt8();
+    int8_t result = peek_int8();
+    retrieve_int8();
     return result;
 }
 
-int64_t Buffer::peekInt64() const
+int64_t Buffer::peek_int64() const
 {
-    assert(readableBytes() >= sizeof(int64_t));
+    assert(readable_bytes() >= sizeof(int64_t));
     int64_t be64 = 0;
     ::memcpy(&be64, peek(), sizeof(be64));
-    return sockets::networkToHost64(be64);
+    return sockets::network_to_host64(be64);
 }
 
-int32_t Buffer::peekInt32() const
+int32_t Buffer::peek_int32() const
 {
-    assert(readableBytes() >= sizeof(int32_t));
+    assert(readable_bytes() >= sizeof(int32_t));
     int32_t be32 = 0;
     ::memcpy(&be32, peek(), sizeof(be32));
-    return sockets::networkToHost32(be32);
+    return sockets::network_to_host32(be32);
 }
 
-int16_t Buffer::peekInt16() const
+int16_t Buffer::peek_int16() const
 {
-    assert(readableBytes() >= sizeof(int16_t));
+    assert(readable_bytes() >= sizeof(int16_t));
     int16_t be16 = 0;
     ::memcpy(&be16, peek(), sizeof(be16));
-    return sockets::networkToHost16(be16);
+    return sockets::network_to_host16(be16);
 }
 
-int8_t Buffer::peekInt8() const
+int8_t Buffer::peek_int8() const
 {
-    assert(readableBytes() >= sizeof(int8_t));
+    assert(readable_bytes() >= sizeof(int8_t));
     int8_t x = *peek();
     return x;
 }
 
 
-void Buffer::prependInt64(int64_t x)
+void Buffer::prepend_int64(int64_t x)
 {
-    int64_t be64 = sockets::hostToNetwork64(x);
+    int64_t be64 = sockets::host_to_network64(x);
     prepend(&be64, sizeof(be64));
 }
 
-void Buffer::prependInt32(int32_t x)
+void Buffer::prepend_int32(int32_t x)
 {
-    int32_t be32 = sockets::hostToNetwork32(x);
+    int32_t be32 = sockets::host_to_network32(x);
     prepend(&be32, sizeof(be32));
 }
 
-void Buffer::prependInt16(int16_t x)
+void Buffer::prepend_int16(int16_t x)
 {
-    int16_t be16 = sockets::hostToNetwork16(x);
+    int16_t be16 = sockets::host_to_network16(x);
     prepend(&be16, sizeof(be16));
 }
 
-void Buffer::prependInt8(int8_t x)
+void Buffer::prepend_int8(int8_t x)
 {
     prepend(&x, sizeof(x));
 }
 
 void Buffer::prepend(const void* data, size_t len)
 {
-    assert(len <= prependableBytes());
+    assert(len <= prependable_bytes());
     reader_index_ -= len;
     const char* d = static_cast<const char*>(data);
     std::copy(d, d+len, begin()+reader_index_);
@@ -303,21 +303,21 @@ void Buffer::prepend(const void* data, size_t len)
 void Buffer::shrink(size_t reserve)
 {
     Buffer other;
-    other.ensureWritableBytes(readableBytes()+reserve);
-    other.append(toStringView());
+    other.ensure_writable_bytes(readable_bytes()+reserve);
+    other.append(to_string_view());
     swap(other);
 }
 
-size_t Buffer::internalCapacity() const
+size_t Buffer::internal_capacity() const
 {
     return buffer_.capacity();
 }
 
-ssize_t Buffer::readFd(int fd, int* saved_errno)
+ssize_t Buffer::read_fd(int fd, int* saved_errno)
 {
     char extrabuf[65536];
     struct iovec vec[2];
-    const size_t writable = writableBytes();
+    const size_t writable = writable_bytes();
 
     vec[0].iov_base = begin() + writer_index_;
     vec[0].iov_len = writable;
@@ -353,22 +353,22 @@ const char* Buffer::begin() const
     return buffer_.data();
 }
 
-void Buffer::makeSpace(size_t len)
+void Buffer::make_space(size_t len)
 {
-    if (writableBytes() + prependableBytes() < len + kCheapPrepend)
+    if (writable_bytes() + prependable_bytes() < len + kCheapPrepend)
     {
         buffer_.resize(writer_index_+len);
     }
     else
     {
         assert(kCheapPrepend < reader_index_);
-        size_t readable = readableBytes();
+        size_t readable = readable_bytes();
         std::copy(begin()+reader_index_,
                   begin()+writer_index_,
                   begin()+kCheapPrepend);
         reader_index_ = kCheapPrepend;
         writer_index_ = reader_index_ + readable;
-        assert(readable == readableBytes());
+        assert(readable == readable_bytes());
     }
 }
 

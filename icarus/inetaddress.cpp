@@ -44,12 +44,12 @@ sa_family_t InetAddress::family() const
     return addr_.sin_family;
 }
 
-std::string InetAddress::toIpPort() const
+std::string InetAddress::to_ip_port() const
 {
-    return toIp().append(":").append(std::to_string(toPort()));
+    return to_ip().append(":").append(std::to_string(to_port()));
 }
 
-std::string InetAddress::toIp() const
+std::string InetAddress::to_ip() const
 {
     char buf[64] = "";
 
@@ -59,27 +59,27 @@ std::string InetAddress::toIp() const
     return std::string(buf);
 }
 
-uint16_t InetAddress::toPort() const
+uint16_t InetAddress::to_port() const
 {
     return ::ntohs(addr_.sin_port);
 }
 
-const struct sockaddr *InetAddress::getSockAddr() const
+const struct sockaddr *InetAddress::get_sock_addr() const
 {
     return reinterpret_cast<const struct sockaddr *>(&addr_);
 }
 
-void InetAddress::setSockAddr(const struct sockaddr_in& addr)
+void InetAddress::set_sock_addr(const struct sockaddr_in& addr)
 {
     addr_ = addr;
 }
 
-uint32_t InetAddress::ipNetEndian() const
+uint32_t InetAddress::ip_net_endian() const
 {
     return addr_.sin_addr.s_addr;
 }
 
-uint16_t InetAddress::portNetEndian() const
+uint16_t InetAddress::port_net_endian() const
 {
     return addr_.sin_port;
 }
