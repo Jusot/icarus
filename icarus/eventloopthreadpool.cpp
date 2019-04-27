@@ -29,7 +29,7 @@ EventLoopThreadPool::~EventLoopThreadPool()
     // ...
 }
 
-void EventLoopThreadPool::set_thread_num(int num_threads)
+void EventLoopThreadPool::set_thread_num(std::size_t num_threads)
 {
     num_threads_ = num_threads;
 }
