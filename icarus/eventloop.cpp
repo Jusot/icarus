@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include <functional>
+
 #include <poll.h>
 #include <unistd.h>
 #include <sys/eventfd.h>
@@ -46,7 +48,7 @@ EventLoop::EventLoop()
     {
         t_loop_in_this_thread = this;
     }
-    wakeup_channel_->set_read_callback(this->handle_read);
+    wakeup_channel_->set_read_callback(std::bind(handle_read, this));
     wakeup_channel_->enable_reading();
 }
 
@@ -161,8 +163,8 @@ void EventLoop::abort_not_in_loop_thread()
 
 void EventLoop::handle_read()
 {
-    std::uint64_t one 1;
-    auto n = read(wakeupFd_, &one, sizeof one);
+    std::uint64_t one = 1;
+    auto n = read(wakeup_fd_, &one, sizeof one);
     /*
     if (n != sizeof one)
     {

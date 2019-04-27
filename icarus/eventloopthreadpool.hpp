@@ -21,7 +21,7 @@ class EventLoopThreadPool : noncopyable
     EventLoopThreadPool(EventLoop *base_loop, int num_threads);
     ~EventLoopThreadPool();
 
-    void set_thread_num(int num_threads);
+    void set_thread_num(std::size_t num_threads);
     void start(const ThreadInitCallback &cb = ThreadInitCallback());
     EventLoop *get_next_loop();
 
@@ -29,7 +29,7 @@ class EventLoopThreadPool : noncopyable
     EventLoop *base_loop_;
     bool started_;
     int num_threads_;
-    int next_;
+    std::size_t next_;
     std::vector<std::unique_ptr<EventLoopThread>> threads_;
     std::vector<EventLoop *> loops_;
 };
