@@ -26,6 +26,7 @@ class Poller : noncopyable
     std::chrono::system_clock::time_point poll(int timeout_ms, ChannelList *active_channels);
 
     void update_channel(Channel *channel);
+    void remove_channel(Channel *channel);
 
     void assert_in_loop_thread();
 

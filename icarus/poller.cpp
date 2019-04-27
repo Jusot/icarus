@@ -1,5 +1,8 @@
-#include <poll.h>
 #include <cassert>
+
+#include <utility>
+
+#include <poll.h>
 
 #include "eventloop.hpp"
 #include "channel.hpp"
@@ -41,9 +44,9 @@ void Poller::update_channel(Channel *channel)
     if (channel->index() < 0)
     {
         // a new one, add to pollfds_
-        assert(channels_.find(channel->fd()) == channels_.end());
+        assert(!channels_.count(channel->fd()));
         pollfds_.push_back({
-            channel->fd(),
+            channel->is_none_event() ? -channel->fd() - 1 : channel->fd(),
             channel->events(),
             0 // revents
         });
@@ -54,19 +57,44 @@ void Poller::update_channel(Channel *channel)
     else
     {
         // update existing one
-        assert(channels_.find(channel->fd()) != channels_.end());
+        assert(channels_.count(channel->fd()));
         assert(channels_[channel->fd()] == channel);
         int idx = channel->index();
         assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
         auto &pfd = pollfds_[idx];
-        assert(pfd.fd == channel->fd() || pfd.fd == -1);
+        assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd() - 1);
+        pfd.fd = channel->is_none_event() ? -channel->fd() - 1 : channel->fd();
         pfd.events = channel->events();
         pfd.revents = 0;
-        if (channel->is_none_event())
+    }
+}
+
+void Poller::remove_channel(Channel *channel)
+{
+    assert_in_loop_thread();
+    assert(channels_.count(channel->fd()));
+    assert(channels_[channel->fd()] == channel);
+    assert(channel->is_none_event());
+    int idx = channel->index();
+    assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
+    auto &pfd = pollfds_[idx];
+    assert(pfd.fd == -channel->fd() - 1 && pfd.events == channel->events());
+    auto n = channels_.erase(channel->fd());
+    assert(n == 1);
+    if (idx == static_cast<int>(pollfds_.size()) - 1)
+    {
+        pollfds_.pop_back();
+    }
+    else
+    {
+        int channel_at_end = pollfds_.back().fd;
+        std::swap(pollfds_[idx], pollfds_.back());
+        if (channel_at_end < 0)
         {
-            // ignore this pollfd
-            pfd.fd = -1;
+            channel_at_end = -channel_at_end - 1;
         }
+        channels_[channel_at_end]->set_index(idx);
+        pollfds_.pop_back();
     }
 }
 

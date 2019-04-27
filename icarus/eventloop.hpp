@@ -40,6 +40,7 @@ class EventLoop : noncopyable
     void wakeup();
 
     void update_channel(Channel *channel);
+    void remove_channel(Channel *channel);
 
     // assert current thread is in loop thread or not
     void assert_in_loop_thread();

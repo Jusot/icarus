@@ -24,7 +24,7 @@ Channel::Channel(EventLoop* loop, int fd)
 
 Channel::~Channel()
 {
-    assert(!event_handling);
+    assert(!event_handling_);
 }
 
 void Channel::handle_event()
@@ -37,7 +37,7 @@ void Channel::handle_event()
         {
             close_callback_();
         }
-    })
+    }
     if (revents_ & POLLNVAL)
     {
         // ...
@@ -160,6 +160,12 @@ void Channel::set_index(int index)
 EventLoop *Channel::owner_loop()
 {
     return loop_;
+}
+
+void Channel::remove()
+{
+    assert(is_none_event());
+    loop_->remove_channel(this);
 }
 
 void Channel::update()
