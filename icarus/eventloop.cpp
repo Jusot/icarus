@@ -48,7 +48,7 @@ EventLoop::EventLoop()
     {
         t_loop_in_this_thread = this;
     }
-    wakeup_channel_->set_read_callback(std::bind(handle_read, this));
+    wakeup_channel_->set_read_callback(std::bind(&EventLoop::handle_read, this));
     wakeup_channel_->enable_reading();
 }
 

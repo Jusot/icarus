@@ -26,7 +26,7 @@ EventLoopThread::~EventLoopThread()
 EventLoop *EventLoopThread::start_loop()
 {
     assert(!thread_.joinable());
-    thread_ = std::thread(std::bind(thread_func, this));
+    thread_ = std::thread(std::bind(&EventLoopThread::thread_func, this));
     {
         std::unique_lock<std::mutex> lock(mutex_);
         while (!loop_)
