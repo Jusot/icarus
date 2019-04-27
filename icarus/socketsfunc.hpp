@@ -2,6 +2,7 @@
 #define ICARUS_SOCKHELPER_HPP
 
 #include <cstdint>
+#include <sys/uio.h>
 
 namespace icarus
 {
@@ -21,6 +22,8 @@ uint16_t hostToNetwork16(uint16_t host16);
 uint64_t networkToHost64(uint64_t net64);
 uint32_t networkToHost32(uint32_t net32);
 uint16_t networkToHost16(uint16_t net16);
+
+ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt);
 
 } // namespace sockets
 } // namespace icarus

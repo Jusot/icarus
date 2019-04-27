@@ -111,5 +111,10 @@ uint16_t networkToHost16(uint16_t net16)
     return be16toh(net16);
 }
 
+ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt)
+{
+    return ::readv(sockfd, iov, iovcnt);
+}
+
 } // namespace sockets
 } // namespace icarus
