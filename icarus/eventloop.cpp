@@ -55,7 +55,8 @@ EventLoop::EventLoop()
 EventLoop::~EventLoop()
 {
     wakeup_channel_->disable_all();
-    assert(!looping_);
+    wakeup_channel_->remove();
+    ::close(wakeup_fd_);
     t_loop_in_this_thread = nullptr;
 }
 
@@ -136,6 +137,13 @@ void EventLoop::update_channel(Channel *channel)
     assert(channel->owner_loop() == this);
     assert_in_loop_thread();
     poller_->update_channel(channel);
+}
+
+void EventLoop::remove_channel(Channel *channel)
+{
+    assert(channel->owner_loop() == this);
+    assert_in_loop_thread();
+    poller_->remove_channel(channel);
 }
 
 void EventLoop::assert_in_loop_thread()
