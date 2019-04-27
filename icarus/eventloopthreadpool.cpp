@@ -15,7 +15,7 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop)
     // ...
 }
 
-EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, std::size_t num_threads)
+EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, int num_threads)
   : base_loop_(base_loop),
     started_(false),
     num_threads_(num_threads),
@@ -29,7 +29,7 @@ EventLoopThreadPool::~EventLoopThreadPool()
     // ...
 }
 
-void EventLoopThreadPool::set_thread_num(std::size_t num_threads)
+void EventLoopThreadPool::set_thread_num(int num_threads)
 {
     num_threads_ = num_threads;
 }
