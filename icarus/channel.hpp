@@ -15,11 +15,13 @@ class Channel : noncopyable
     using EventCallback = std::function<void()>;
 
     Channel(EventLoop *loop, int fd);
+    ~Channel();
 
     void handle_event();
 
     void set_read_callback(EventCallback cb);
     void set_write_callback(EventCallback cb);
+    void set_close_callback(EventCallback cb);
     void set_error_callback(EventCallback cb);
 
     int fd() const;
@@ -32,6 +34,8 @@ class Channel : noncopyable
     void enable_writing();
     void disable_writing();
     void disable_all();
+    bool is_writing() const;
+    bool is_reading() const;
 
     // for Poller
     int index();
@@ -52,8 +56,10 @@ class Channel : noncopyable
     short      events_;
     short      revents_;
 
+    bool event_handling_;
     EventCallback read_callback_;
     EventCallback write_callback_;
+    EventCallback close_callback_;
     EventCallback error_callback_;
 };
 }

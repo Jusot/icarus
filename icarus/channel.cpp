@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <poll.h>
 
 #include "channel.hpp"
@@ -14,18 +16,32 @@ Channel::Channel(EventLoop* loop, int fd)
     index_(-1),
     fd_(fd),
     events_(0),
-    revents_(0)
+    revents_(0),
+    event_handling_(false)
 {
     // ...
 }
 
+Channel::~Channel()
+{
+    assert(!event_handling);
+}
+
 void Channel::handle_event()
 {
+    event_handling_ = true;
+
+    if ((revents_ & POLLHUP) && !(revents_ & POLLIN))
+    {
+        if (close_callback_)
+        {
+            close_callback_();
+        }
+    })
     if (revents_ & POLLNVAL)
     {
         // ...
     }
-
     if (revents_ & (POLLERR | POLLNVAL))
     {
         if (error_callback_)
@@ -47,6 +63,8 @@ void Channel::handle_event()
             write_callback_();
         }
     }
+    
+    event_handling_ = false;
 }
 
 void Channel::set_read_callback(EventCallback cb)
@@ -57,6 +75,11 @@ void Channel::set_read_callback(EventCallback cb)
 void Channel::set_write_callback(EventCallback cb)
 {
     write_callback_ = std::move(cb);
+}
+
+void Channel::set_close_callback(EventCallback cb)
+{
+    close_callback_ = std::move(cb);
 }
 
 void Channel::set_error_callback(EventCallback cb)
@@ -112,6 +135,16 @@ void Channel::disable_all()
 {
     events_ = kNoneEvent;
     update();
+}
+
+bool Channel::is_writing() const
+{
+    return events_ & kWriteEvent;
+}
+
+bool Channel::is_reading() const
+{
+    return events_ & kReadEvent;
 }
 
 int Channel::index()
