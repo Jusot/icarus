@@ -8,52 +8,41 @@
 
 #include "callbacks.hpp"
 #include "noncopyable.hpp"
-
-struct tcp_info;
+#include "inetaddress.hpp"
+#include "buffer.hpp"
 
 namespace icarus
 {
 
 class Channel;
-class Eventloop;
+class EventLoop;
 class Socket;
 class InetAddress;
 
-class TcpConnection : noncopyable
+class TcpConnection : noncopyable,
+                      public std::enable_shared_from_this<TcpConnection>
 {
   public:
-    TcpConnection(Eventloop* loop,
+    TcpConnection(EventLoop* loop,
                   const std::string& name,
                   int sockfd,
                   const InetAddress& local_addr,
                   const InetAddress& peer_addr);
     ~TcpConnection();
 
-    Eventloop* get_loop() const;
+    EventLoop* get_loop() const;
     const std::string& name() const;
     const InetAddress& local_address() const;
     const InetAddress& peer_address() const;
     bool connected() const;
-    bool disconnected() const;
-
-    bool get_tcp_info(struct tcp_info*) const;
-    std::string get_tcp_info_string() const;
 
     void send(const void* message, int len);
     void send(const std::string_view& message);
     void send(Buffer* message);
     void shutdown();
-    void force_close();
-    void force_close_with_delay(double seconds);
-    void set_tcp_no_delay(bool on);
-
-    void start_read();
-    void stop_read();
-    bool is_reading() const;
 
     void set_context(std::any context);
     const std::any& get_context() const;
-    std::any* get_mutable_context();
 
     void set_connection_callback(ConnectionCallback cb);
     void set_message_callback(MessageCallback cb);
@@ -81,17 +70,17 @@ class TcpConnection : noncopyable
     void shutdown_in_loop();
     void set_state(States s);
 
-    Eventloop* loop_;
+    EventLoop* loop_;
     std::string name_;
     States state_;
     std::unique_ptr<Socket> socket_;
     std::unique_ptr<Channel> channel_;
     InetAddress local_addr_;
-    InetAddress peer_addr;
+    InetAddress peer_addr_;
     ConnectionCallback connection_callback_;
-    MessageCallback message_callback;
-    WriteCompleteCallback write_complete_callback;
-    ConnectionCallback CloseCallback_;
+    MessageCallback message_callback_;
+    WriteCompleteCallback write_complete_callback_;
+    ConnectionCallback close_callback_;
     Buffer input_buffer_;
     Buffer output_buffer_;
     std::any context_;
