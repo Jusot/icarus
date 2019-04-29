@@ -23,6 +23,7 @@ uint64_t network_to_host64(uint64_t net64);
 uint32_t network_to_host32(uint32_t net32);
 uint16_t network_to_host16(uint16_t net16);
 
+ssize_t write(int fd, const void *buf, size_t count);
 ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt);
 
 } // namespace sockets

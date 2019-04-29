@@ -31,7 +31,7 @@ void listen_or_die(int sockfd)
 
 int accept(int sockfd, struct sockaddr_in *addr)
 {
-    socklen_t addrlen = static_cast<socklen_t>(sizeof(*addr));
+    auto addrlen = static_cast<socklen_t>(sizeof(*addr));
     int connfd = ::accept4(sockfd, reinterpret_cast<struct sockaddr*>(addr), &addrlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
     if (connfd < 0)
     {
@@ -109,6 +109,11 @@ uint32_t network_to_host32(uint32_t net32)
 uint16_t network_to_host16(uint16_t net16)
 {
     return be16toh(net16);
+}
+
+ssize_t write(int fd, const void *buf, size_t count)
+{
+    return ::write(fd, buf, count);
 }
 
 ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt)
