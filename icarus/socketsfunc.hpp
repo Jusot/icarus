@@ -10,11 +10,14 @@ namespace icarus
 namespace sockets
 {
 
+int create_nonblocking_or_die();
 void bind_or_die(int sockfd, const struct sockaddr* addr);
 void listen_or_die(int sockfd);
 int accept(int sockfd, struct sockaddr_in* addr);
 void close(int sockfd);
 void shutdown_write(int sockfd);
+
+void set_non_block_and_close_on_exec(int sockfd);
 
 uint64_t host_to_network64(uint64_t hosst64);
 uint32_t host_to_network32(uint32_t host32);

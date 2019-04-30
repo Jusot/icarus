@@ -2,6 +2,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <endian.h>
 
@@ -11,6 +12,20 @@ namespace icarus
 {
 namespace sockets
 {
+
+
+int create_nonblocking_or_die()
+{
+    int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockfd < 0)
+    {
+        abort();
+    }
+
+    set_non_block_and_close_on_exec(sockfd);
+    return sockfd;
+}
+
 void bind_or_die(int sockfd, const struct sockaddr *addr)
 {
     int ret = ::bind(sockfd, addr, static_cast<socklen_t>(sizeof(struct sockaddr)));
@@ -79,6 +94,17 @@ void close(int sockfd)
     {
         abort();
     }
+}
+
+void set_non_block_and_close_on_exec(int sockfd)
+{
+    int flags = ::fcntl(sockfd, F_GETFL, 0);
+    flags |= O_NONBLOCK;
+    int ret = ::fcntl(sockfd, F_SETFL, flags);
+
+    flags = ::fcntl(sockfd, F_GETFD, 0);
+    flags |= FD_CLOEXEC;
+    ret = ::fcntl(sockfd, F_SETFD, flags);
 }
 
 uint64_t host_to_network64(uint64_t host64)
