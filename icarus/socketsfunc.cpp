@@ -8,21 +8,18 @@
 
 #include "socketsfunc.hpp"
 
-namespace icarus
-{
-namespace sockets
+namespace icarus::sockets
 {
 
 
 int create_nonblocking_or_die()
 {
-    int sockfd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     if (sockfd < 0)
     {
         abort();
     }
 
-    set_non_block_and_close_on_exec(sockfd);
     return sockfd;
 }
 
@@ -147,5 +144,4 @@ ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt)
     return ::readv(sockfd, iov, iovcnt);
 }
 
-} // namespace sockets
 } // namespace icarus
