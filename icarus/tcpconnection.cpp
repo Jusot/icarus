@@ -266,7 +266,7 @@ void TcpConnection::send_in_loop(const void *message, size_t len)
 
     if (!channel_->is_writing() && output_buffer_.readable_bytes() == 0)
     {
-        nwrote = sockets::write(channel_->fd(), data, len);
+        nwrote = sockets::write(channel_->fd(), message, len);
         if (nwrote >= 0)
         {
             if (static_cast<size_t>(nwrote) < len)
