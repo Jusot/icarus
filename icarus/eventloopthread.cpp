@@ -1,3 +1,5 @@
+#include <utility>
+
 #include <cassert>
 
 #include "eventloop.hpp"
@@ -5,10 +7,10 @@
 
 using namespace icarus;
 
-EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
-  : loop_(nullptr), 
-    exiting_(false), 
-    callback_(cb)
+EventLoopThread::EventLoopThread(ThreadInitCallback  cb)
+  : loop_(nullptr),
+    exiting_(false),
+    callback_(std::move(cb))
 {
     // ...
 }
@@ -29,10 +31,7 @@ EventLoop *EventLoopThread::start_loop()
     thread_ = std::thread(std::bind(&EventLoopThread::thread_func, this));
     {
         std::unique_lock<std::mutex> lock(mutex_);
-        while (!loop_)
-        {
-            cond_.wait(lock, [&] { return loop_; });
-        }
+        cond_.wait(lock, [&] { return loop_; });
     }
     return loop_;
 }
