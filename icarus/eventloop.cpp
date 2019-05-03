@@ -20,7 +20,7 @@ thread_local EventLoop *t_loop_in_this_thread = nullptr;
 
 constexpr int kPollTimeMs = 10000;
 
-static int create_eventfd()
+int create_eventfd()
 {
     int fd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     if (fd < 0)
@@ -90,7 +90,7 @@ void EventLoop::quit()
     }
 }
 
-void EventLoop::run_in_loop(Functor cb)
+void EventLoop::run_in_loop(const Functor& cb)
 {
     if (is_in_loop_thread())
     {
@@ -102,7 +102,7 @@ void EventLoop::run_in_loop(Functor cb)
     }
 }
 
-void EventLoop::queue_in_loop(Functor cb)
+void EventLoop::queue_in_loop(const Functor& cb)
 {
     {
         std::lock_guard<std::mutex> lock(mutex_);

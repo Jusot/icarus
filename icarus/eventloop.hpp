@@ -31,9 +31,9 @@ class EventLoop : noncopyable
     // quits loop
     void quit();
 
-    void run_in_loop(Functor cb);
+    void run_in_loop(const Functor& cb);
 
-    void queue_in_loop(Functor cb);
+    void queue_in_loop(const Functor& cb);
 
     std::size_t queue_size() const;
 
