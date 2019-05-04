@@ -123,7 +123,7 @@ void TcpServer::remove_connection_in_loop(const TcpConnectionPtr &conn)
     loop_->assert_in_loop_thread();
     size_t n = connections_.erase(conn->name());
     assert(n == 1);
-    loop_->queue_in_loop([=] () {
+    conn->get_loop()->queue_in_loop([conn] () {
         conn->connect_destroyed();
     });
 }
