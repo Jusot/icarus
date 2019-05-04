@@ -1,12 +1,11 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
-
 #include <functional>
-
 #include <poll.h>
 #include <unistd.h>
 #include <sys/eventfd.h>
+#include <sys/signal.h>
 
 #include "poller.hpp"
 #include "channel.hpp"
@@ -29,6 +28,11 @@ int create_eventfd()
     }
     return fd;
 }
+
+int ignore_sigpipe = [] () {
+    ::signal(SIGPIPE, SIG_IGN);
+    return 0;
+}();
 } // namespace
 
 EventLoop::EventLoop()
