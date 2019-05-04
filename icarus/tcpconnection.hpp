@@ -36,7 +36,7 @@ class TcpConnection : noncopyable,
     const InetAddress& peer_address() const;
     bool connected() const;
 
-    void send(const void* message, int len);
+    void send(const void *message, size_t len);
     void send(const std::string_view& message);
     void send(Buffer* message);
     void shutdown();

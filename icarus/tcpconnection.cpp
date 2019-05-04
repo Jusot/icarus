@@ -65,7 +65,7 @@ bool TcpConnection::connected() const
     return state_ == kConnected;
 }
 
-void TcpConnection::send(const void* message, int len)
+void TcpConnection::send(const void *message, size_t len)
 {
     if (state_ == kConnected)
     {
@@ -75,9 +75,8 @@ void TcpConnection::send(const void* message, int len)
         }
         else
         {
-            std::string data(static_cast<const char*>(message), len);
-            loop_->run_in_loop([this, d = std::move(data)] () {
-                this->send_in_loop(d.data(), d.size());
+            loop_->run_in_loop([this, data = std::string(static_cast<const char*>(message), len)] () {
+                this->send_in_loop(data.data(), data.size());
             });
         }
     }
@@ -85,19 +84,7 @@ void TcpConnection::send(const void* message, int len)
 
 void TcpConnection::send(const std::string_view& message)
 {
-    if (state_ == kConnected)
-    {
-        if (loop_->is_in_loop_thread())
-        {
-            send_in_loop(message);
-        }
-    }
-    else
-    {
-        loop_->run_in_loop([this, str = std::string(message.data(), message.size())] () {
-            this->send_in_loop(static_cast<const void*>(str.data()), str.size());
-        });
-    }
+    send(static_cast<const void*>(message.data()), message.size());
 }
 
 void TcpConnection::send(Buffer* buf)
@@ -109,12 +96,12 @@ void TcpConnection::send(Buffer* buf)
             send_in_loop(buf->peek(), buf->readable_bytes());
             buf->retrieve_all();
         }
-    }
-    else
-    {
-        loop_->run_in_loop([this, str = buf->retrieve_all_as_string()] () {
-            this->send_in_loop(str.data(), str.size());
-        });
+        else
+        {
+            loop_->run_in_loop([this, str = buf->retrieve_all_as_string()]() {
+                this->send_in_loop(str.data(), str.size());
+            });
+        }
     }
 }
 
