@@ -20,7 +20,7 @@ class EventLoopThreadPool;
 class TcpServer : noncopyable
 {
   public:
-    TcpServer(EventLoop* loop, const InetAddress& listen_addr, const std::string& name);
+    TcpServer(EventLoop* loop, const InetAddress& listen_addr, std::string name);
     ~TcpServer();
 
     void set_thread_num(int num_threads);

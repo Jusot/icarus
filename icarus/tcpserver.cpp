@@ -1,8 +1,11 @@
+#include <utility>
+
 #include <memory>
 #include <cstdio>
 #include <cassert>
 
 #include "tcpserver.hpp"
+#include "callbacks.hpp"
 #include "eventloop.hpp"
 #include "acceptor.hpp"
 #include "inetaddress.hpp"
@@ -10,13 +13,27 @@
 #include "tcpconnection.hpp"
 #include "eventloopthreadpool.hpp"
 
+namespace
+{
+void default_connection_callback(const icarus::TcpConnectionPtr& conn)
+{
+    // TODO: log
+}
+
+void default_message_callback(const icarus::TcpConnectionPtr &, icarus::Buffer *buf)
+{
+    buf->retrieve_all();
+}
+
+} // namespace
+
 namespace icarus
 {
 
-TcpServer::TcpServer(EventLoop* loop, const InetAddress& listen_addr, const std::string& name)
+TcpServer::TcpServer(EventLoop* loop, const InetAddress& listen_addr, std::string name)
   : loop_(loop),
     host_port_(listen_addr.to_ip_port()),
-    name_(name),
+    name_(std::move(name)),
     acceptor_(new Acceptor(loop, listen_addr)),
     thread_pool_(new EventLoopThreadPool(loop)),
     connection_callback_(default_connection_callback),
@@ -88,6 +105,9 @@ void TcpServer::new_connection(int sockfd, const InetAddress &peer_addr)
     conn->set_write_complete_callback(write_complete_callback_);
     conn->set_close_callback([this] (const TcpConnectionPtr& p_conn) {
         this->remove_connection(p_conn);
+    });
+    io_loop->run_in_loop([conn] () {
+        conn->connect_established();
     });
 }
 

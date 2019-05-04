@@ -1,5 +1,4 @@
 #include <utility>
-
 #include <cassert>
 
 #include "tcpconnection.hpp"

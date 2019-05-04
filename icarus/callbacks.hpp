@@ -7,7 +7,6 @@
 namespace icarus
 {
 
-// class Buffer;
 class TcpConnection;
 class Buffer;
 
@@ -19,11 +18,6 @@ using WriteCompleteCallback = std::function<void(const TcpConnectionPtr &)>;
 using MessageCallback       = std::function<void (const TcpConnectionPtr&,
                                                   Buffer* /*,
                                                   Timestamp*/)>;
-void default_connection_callback(const TcpConnectionPtr& conn);
-void default_message_callback(const TcpConnectionPtr& conn,
-                              Buffer* buffer /*, 
-                              Timestamp receive_time */);
-
 } // namespace icarus
 
 #endif // ICARUS_CALLBACKS_HPP
