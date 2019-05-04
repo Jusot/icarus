@@ -1,3 +1,5 @@
+#include <utility>
+
 #include <cassert>
 
 #include "tcpconnection.hpp"
@@ -11,12 +13,12 @@
 namespace icarus
 {
 TcpConnection::TcpConnection(EventLoop* loop,
-                             const std::string& name,
+                             std::string name,
                              int sockfd,
                              const InetAddress& local_addr,
                              const InetAddress& peer_addr)
   : loop_(loop),
-    name_(name),
+    name_(std::move(name)),
     state_(kConnecting),
     socket_(new Socket(sockfd)),
     channel_(new Channel(loop, sockfd)),
@@ -148,7 +150,7 @@ void TcpConnection::set_message_callback(MessageCallback cb)
     message_callback_ = std::move(cb);
 }
 
-void TcpConnection::set_write_compelete_callback(WriteCompleteCallback cb)
+void TcpConnection::set_write_complete_callback(WriteCompleteCallback cb)
 {
     write_complete_callback_ = std::move(cb);
 }
@@ -276,7 +278,7 @@ void TcpConnection::send_in_loop(const void *message, size_t len)
             else if (write_complete_callback_)
             {
                 loop_->queue_in_loop([=, ptr = shared_from_this()] () {
-                    write_complete_callback_(shared_from_this());
+                    write_complete_callback_(ptr);
                 });
             }
         }
@@ -296,7 +298,7 @@ void TcpConnection::send_in_loop(const void *message, size_t len)
         output_buffer_.append(static_cast<const char *>(message) + nwrote, len - nwrote);
         if (!channel_->is_writing())
         {
-            channel_->enable_reading();
+            channel_->enable_writing();
         }
     }
 }

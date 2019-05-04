@@ -24,7 +24,7 @@ class TcpConnection : noncopyable,
 {
   public:
     TcpConnection(EventLoop* loop,
-                  const std::string& name,
+                  std::string name,
                   int sockfd,
                   const InetAddress& local_addr,
                   const InetAddress& peer_addr);
@@ -46,7 +46,7 @@ class TcpConnection : noncopyable,
 
     void set_connection_callback(ConnectionCallback cb);
     void set_message_callback(MessageCallback cb);
-    void set_write_compelete_callback(WriteCompleteCallback cb);
+    void set_write_complete_callback(WriteCompleteCallback cb);
     void set_close_callback(CloseCallback cb);
 
     void connect_established();
