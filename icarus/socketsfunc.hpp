@@ -29,6 +29,8 @@ uint16_t network_to_host16(uint16_t net16);
 ssize_t write(int fd, const void *buf, size_t count);
 ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt);
 
+struct sockaddr_in get_local_addr(int sockfd);
+
 } // namespace sockets
 } // namespace icarus
 

@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstring>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -142,6 +143,18 @@ ssize_t write(int fd, const void *buf, size_t count)
 ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt)
 {
     return ::readv(sockfd, iov, iovcnt);
+}
+
+struct sockaddr_in get_local_addr(int sockfd)
+{
+    struct sockaddr_in localaddr;
+    memset(&localaddr, 0, sizeof(localaddr));
+    socklen_t addrlen = sizeof(localaddr);
+    if (::getsockname(sockfd, &localaddr, &addrlen) < 0)
+    {
+        // TODO: log error
+    }
+    return localaddr;
 }
 
 } // namespace icarus
