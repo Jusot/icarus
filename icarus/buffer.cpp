@@ -15,8 +15,8 @@ Buffer::Buffer(size_t initialize_size)
     writer_index_(kCheapPrepend)
 {
     assert(readable_bytes() == 0);
-    assert(writable_bytes() == 0);
-    assert(prependable_bytes() == 0);
+    assert(writable_bytes() == initialize_size);
+    assert(prependable_bytes() == kCheapPrepend);
 }
 
 void Buffer::swap(Buffer& rhs)
