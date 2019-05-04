@@ -150,7 +150,7 @@ struct sockaddr_in get_local_addr(int sockfd)
     struct sockaddr_in localaddr;
     memset(&localaddr, 0, sizeof(localaddr));
     socklen_t addrlen = sizeof(localaddr);
-    if (::getsockname(sockfd, &localaddr, &addrlen) < 0)
+    if (::getsockname(sockfd, reinterpret_cast<struct sockaddr*>(&localaddr), &addrlen) < 0)
     {
         // TODO: log error
     }
