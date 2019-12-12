@@ -2,7 +2,12 @@
 
 #include <utility>
 
+#ifdef USE_POLL
 #include <poll.h>
+#else
+#include <sys/epoll.h>
+#include <unistd.h>
+#endif
 
 #include "eventloop.hpp"
 #include "channel.hpp"
@@ -13,17 +18,29 @@ using namespace icarus;
 Poller::Poller(EventLoop *loop)
   : owner_loop_(loop)
 {
-    // ...
+#ifndef USE_POLL
+    epoll_fd_ = ::epoll_create(10);
+    if (epoll_fd_ == -1)
+    {
+        abort();
+    }
+#endif
 }
 
 Poller::~Poller()
 {
-    // ...
+#ifndef USE_POLL
+    ::close(epoll_fd_);
+#endif
 }
 
 std::chrono::system_clock::time_point Poller::poll(int timeout_ms, ChannelList *active_channels)
 {
+#ifdef USE_POLL
     int num_events = ::poll(pollfds_.data(), pollfds_.size(), timeout_ms);
+#else
+    int num_events = ::epoll_wait(epoll_fd_, epoll_events_.data(), epoll_events_.size(), timeout_ms);
+#endif
     auto now = std::chrono::system_clock::now();
 
     if (num_events > 0)
@@ -45,12 +62,24 @@ void Poller::update_channel(Channel *channel)
     {
         // a new one, add to pollfds_
         assert(!channels_.count(channel->fd()));
+#ifdef USE_POLL
         pollfds_.push_back({
             channel->is_none_event() ? -channel->fd() - 1 : channel->fd(),
             channel->events(),
             0 // revents
         });
         int idx = static_cast<int>(pollfds_.size()) - 1;
+#else
+        epoll_event event;
+        event.events = channel->events();
+        event.data.fd = channel->fd();
+        if (::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, channel->fd(), &event) == -1)
+        {
+            abort();
+        }
+        epoll_events_.push_back(event);
+        int idx = static_cast<int>(epoll_events_.size()) - 1;
+#endif
         channel->set_index(idx);
         channels_[channel->fd()] = channel;
     }
@@ -59,6 +88,7 @@ void Poller::update_channel(Channel *channel)
         // update existing one
         assert(channels_.count(channel->fd()));
         assert(channels_[channel->fd()] == channel);
+#ifdef USE_POLL
         int idx = channel->index();
         assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
         auto &pfd = pollfds_[idx];
@@ -66,6 +96,25 @@ void Poller::update_channel(Channel *channel)
         pfd.fd = channel->is_none_event() ? -channel->fd() - 1 : channel->fd();
         pfd.events = channel->events();
         pfd.revents = 0;
+#else
+        if (channel->is_none_event())
+        {
+            epoll_event event;
+            event.events = channel->events();
+            event.data.fd = channel->fd();
+            if (::epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, channel->fd(), &event) == -1)
+            {
+                abort();
+            }
+        }
+        else
+        {
+            if (::epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, channel->fd(), nullptr) == -1)
+            {
+                abort();
+            }
+        }
+#endif
     }
 }
 
@@ -76,11 +125,10 @@ void Poller::remove_channel(Channel *channel)
     assert(channels_[channel->fd()] == channel);
     assert(channel->is_none_event());
     int idx = channel->index();
+#ifdef USE_POLL
     assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
     auto &pfd = pollfds_[idx];
     assert(pfd.fd == -channel->fd() - 1 && pfd.events == channel->events());
-    auto n = channels_.erase(channel->fd());
-    assert(n == 1);
     if (idx == static_cast<int>(pollfds_.size()) - 1)
     {
         pollfds_.pop_back();
@@ -96,25 +144,45 @@ void Poller::remove_channel(Channel *channel)
         channels_[channel_at_end]->set_index(idx);
         pollfds_.pop_back();
     }
+#else
+    assert(0 <= idx && idx < static_cast<int>(epoll_events_.size()));
+    epoll_events_.pop_back();
+#endif
+    auto n = channels_.erase(channel->fd());
+    assert(n == 1);
 }
 
 void Poller::fill_active_channels(int num_events, ChannelList *active_channels) const
 {
+#ifdef USE_POLL
     for (auto pfd = pollfds_.begin();
         pfd != pollfds_.end() && num_events > 0; ++pfd)
+#else
+    for (int i = 0; i < num_events; ++i)
+#endif
     {
+#ifdef USE_POLL
         if (pfd->revents > 0)
         {
             --num_events;
-            auto ch = channels_.find(pfd->fd);
+            int fd = pfd->fd;
+            int revent = pfd->revents;
+#else
+            int fd = epoll_events_[i].data.fd;
+            int revent = epoll_events_[i].events;
+#endif
+            auto ch = channels_.find(fd);
             assert(ch != channels_.end());
             auto channel = ch->second;
-            assert(channel->fd() == pfd->fd);
-            channel->set_revents(pfd->revents);
+            assert(channel->fd() == fd);
+            channel->set_revents(revent);
             // pfd->revents = 0;
             active_channels->push_back(channel);
+#ifdef USE_POLL
         }
+#endif
     }
+
 }
 
 void Poller::assert_in_loop_thread()
