@@ -11,6 +11,7 @@ namespace sockets
 {
 
 int create_nonblocking_or_die();
+int connect(int sockfd, const struct sockaddr* addr);
 void bind_or_die(int sockfd, const struct sockaddr* addr);
 void listen_or_die(int sockfd);
 int accept(int sockfd, struct sockaddr_in* addr);
@@ -29,7 +30,11 @@ uint16_t network_to_host16(uint16_t net16);
 ssize_t write(int fd, const void *buf, size_t count);
 ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt);
 
+int get_socket_error(int sockfd);
+
 struct sockaddr_in get_local_addr(int sockfd);
+struct sockaddr_in get_peer_addr(int sockfd);
+bool is_self_connect(int sockfd);
 
 } // namespace sockets
 } // namespace icarus

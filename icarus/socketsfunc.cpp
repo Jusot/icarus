@@ -11,8 +11,6 @@
 
 namespace icarus::sockets
 {
-
-
 int create_nonblocking_or_die()
 {
     int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
@@ -22,6 +20,11 @@ int create_nonblocking_or_die()
     }
 
     return sockfd;
+}
+
+int connect(int sockfd, const struct sockaddr *addr)
+{
+    return ::connect(sockfd, addr, static_assert<socklen_t>(sizeof(struct sockaddr_in)));
 }
 
 void bind_or_die(int sockfd, const struct sockaddr *addr)
@@ -145,16 +148,55 @@ ssize_t readv(int sockfd, const struct iovec *iov, int iovcnt)
     return ::readv(sockfd, iov, iovcnt);
 }
 
+int get_socket_error(int sockfd)
+{
+    int optval;
+    socklen_t optlen = static_cast<socklen_t>(sizeof optval);
+
+    if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optval, &optlen) < 0)
+    {
+        return errno;
+    }
+    else
+    {
+        return optval;
+    }
+}
+
 struct sockaddr_in get_local_addr(int sockfd)
 {
     struct sockaddr_in localaddr;
-    memset(&localaddr, 0, sizeof(localaddr));
-    socklen_t addrlen = sizeof(localaddr);
+    memset(&localaddr, 0, sizeof localaddr);
+    socklen_t addrlen = sizeof localaddr;
     if (::getsockname(sockfd, reinterpret_cast<struct sockaddr*>(&localaddr), &addrlen) < 0)
     {
         // TODO: log error
     }
     return localaddr;
+}
+
+struct sockaddr_in get_peer_addr(int sockfd)
+{
+    struct sockaddr_in peeraddr;
+    memset(&peeraddr, 0, sizeof peeraddr);
+    socklen_t addrlen = static_cast<socklen_t>(sizeof peeraddr);
+    if (::getpeername(sockfd, reinterpret_cast<struct sockaddr*>(&peeraddr), &addrlen) < 0)
+    {
+        // TODO: log error
+    }
+    return peeraddr;
+}
+
+bool is_self_connect(int sockfd)
+{
+    struct sockaddr_in localaddr = getLocalAddr(sockfd);
+    struct sockaddr_in peeraddr = getPeerAddr(sockfd);
+
+    const struct sockaddr_in* laddr4 = reinterpret_cast<struct sockaddr_in*>(&localaddr);
+    const struct sockaddr_in* raddr4 = reinterpret_cast<struct sockaddr_in*>(&peeraddr);
+
+    return laddr4->sin_port == raddr4->sin_port
+        && laddr4->sin_addr.s_addr == raddr4->sin_addr.s_addr;
 }
 
 } // namespace icarus
