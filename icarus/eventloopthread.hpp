@@ -20,7 +20,7 @@ class EventLoopThread : noncopyable
 
     explicit EventLoopThread(ThreadInitCallback cb = ThreadInitCallback());
     ~EventLoopThread();
-    
+
     EventLoop *start_loop();
 
   private:
