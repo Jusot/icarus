@@ -1,6 +1,7 @@
 #ifndef ICARUS_TCPCLIENT_HPP
 #define ICARUS_TCPCLIENT_HPP
 
+#include <mutex>
 #include <string>
 #include <memory>
 
@@ -46,6 +47,7 @@ class TcpClient : noncopyable
     bool retry_;
     bool connect_;
     int next_conn_id_;
+    std::mutex mutex_;
     TcpConnectionPtr connection_;
 };
 } // namespace icarus
