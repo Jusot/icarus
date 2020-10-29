@@ -7,10 +7,10 @@
 
 #include "noncopyable.hpp"
 
-#ifdef USE_POLL
-struct pollfd;
-#else
+#ifdef USE_EPOLL
 struct epoll_event;
+#else
+struct pollfd;
 #endif
 
 namespace icarus
@@ -37,21 +37,21 @@ class Poller : noncopyable
   private:
     void fill_active_channels(int num_events, ChannelList *active_channels) const;
 
-#ifdef USE_POLL
-    using PollFdList = std::vector<pollfd>;
-#else
+#ifdef USE_EPOLL
     using EpollEventList = std::vector<epoll_event>;
+#else
+    using PollFdList = std::vector<pollfd>;
 #endif
 
     using ChannelMap = std::map<int, Channel *>;
 
     EventLoop *owner_loop_;
     ChannelMap channels_;
-#ifdef USE_POLL
-    PollFdList pollfds_;
-#else
+#ifdef USE_EPOLL
     int epoll_fd_;
     EpollEventList epoll_events_;
+#else
+    PollFdList pollfds_;
 #endif
 };
 }

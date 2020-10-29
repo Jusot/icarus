@@ -2,11 +2,11 @@
 
 #include <utility>
 
-#ifdef USE_POLL
-#include <poll.h>
-#else
+#ifdef USE_EPOLL
 #include <sys/epoll.h>
 #include <unistd.h>
+#else
+#include <poll.h>
 #endif
 
 #include "eventloop.hpp"
@@ -18,7 +18,7 @@ using namespace icarus;
 Poller::Poller(EventLoop *loop)
   : owner_loop_(loop)
 {
-#ifndef USE_POLL
+#ifdef USE_EPOLL
     epoll_fd_ = ::epoll_create(10);
     if (epoll_fd_ == -1)
     {
@@ -29,17 +29,17 @@ Poller::Poller(EventLoop *loop)
 
 Poller::~Poller()
 {
-#ifndef USE_POLL
+#ifdef USE_EPOLL
     ::close(epoll_fd_);
 #endif
 }
 
 std::chrono::system_clock::time_point Poller::poll(int timeout_ms, ChannelList *active_channels)
 {
-#ifdef USE_POLL
-    int num_events = ::poll(pollfds_.data(), pollfds_.size(), timeout_ms);
-#else
+#ifdef USE_EPOLL
     int num_events = ::epoll_wait(epoll_fd_, epoll_events_.data(), epoll_events_.size(), timeout_ms);
+#else
+    int num_events = ::poll(pollfds_.data(), pollfds_.size(), timeout_ms);
 #endif
     auto now = std::chrono::system_clock::now();
 
@@ -62,14 +62,7 @@ void Poller::update_channel(Channel *channel)
     {
         // a new one, add to pollfds_
         assert(!channels_.count(channel->fd()));
-#ifdef USE_POLL
-        pollfds_.push_back({
-            channel->is_none_event() ? -channel->fd() - 1 : channel->fd(),
-            channel->events(),
-            0 // revents
-        });
-        int idx = static_cast<int>(pollfds_.size()) - 1;
-#else
+#ifdef USE_EPOLL
         epoll_event event;
         event.events = channel->events();
         event.data.fd = channel->fd();
@@ -79,6 +72,13 @@ void Poller::update_channel(Channel *channel)
         }
         epoll_events_.push_back(event);
         int idx = static_cast<int>(epoll_events_.size()) - 1;
+#else
+        pollfds_.push_back({
+            channel->is_none_event() ? -channel->fd() - 1 : channel->fd(),
+            channel->events(),
+            0 // revents
+        });
+        int idx = static_cast<int>(pollfds_.size()) - 1;
 #endif
         channel->set_index(idx);
         channels_[channel->fd()] = channel;
@@ -88,15 +88,7 @@ void Poller::update_channel(Channel *channel)
         // update existing one
         assert(channels_.count(channel->fd()));
         assert(channels_[channel->fd()] == channel);
-#ifdef USE_POLL
-        int idx = channel->index();
-        assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
-        auto &pfd = pollfds_[idx];
-        assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd() - 1);
-        pfd.fd = channel->is_none_event() ? -channel->fd() - 1 : channel->fd();
-        pfd.events = channel->events();
-        pfd.revents = 0;
-#else
+#ifdef USE_EPOLL
         if (channel->is_none_event())
         {
             epoll_event event;
@@ -114,6 +106,14 @@ void Poller::update_channel(Channel *channel)
                 abort();
             }
         }
+#else
+        int idx = channel->index();
+        assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
+        auto &pfd = pollfds_[idx];
+        assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd() - 1);
+        pfd.fd = channel->is_none_event() ? -channel->fd() - 1 : channel->fd();
+        pfd.events = channel->events();
+        pfd.revents = 0;
 #endif
     }
 }
@@ -125,7 +125,10 @@ void Poller::remove_channel(Channel *channel)
     assert(channels_[channel->fd()] == channel);
     assert(channel->is_none_event());
     int idx = channel->index();
-#ifdef USE_POLL
+#ifdef USE_EPOLL
+    assert(0 <= idx && idx < static_cast<int>(epoll_events_.size()));
+    epoll_events_.pop_back();
+#else
     assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
     auto &pfd = pollfds_[idx];
     assert(pfd.fd == -channel->fd() - 1 && pfd.events == channel->events());
@@ -144,9 +147,6 @@ void Poller::remove_channel(Channel *channel)
         channels_[channel_at_end]->set_index(idx);
         pollfds_.pop_back();
     }
-#else
-    assert(0 <= idx && idx < static_cast<int>(epoll_events_.size()));
-    epoll_events_.pop_back();
 #endif
     auto n = channels_.erase(channel->fd());
     assert(n == 1);
@@ -154,22 +154,22 @@ void Poller::remove_channel(Channel *channel)
 
 void Poller::fill_active_channels(int num_events, ChannelList *active_channels) const
 {
-#ifdef USE_POLL
+#ifdef USE_EPOLL
+    for (int i = 0; i < num_events; ++i)
+#else
     for (auto pfd = pollfds_.begin();
         pfd != pollfds_.end() && num_events > 0; ++pfd)
-#else
-    for (int i = 0; i < num_events; ++i)
 #endif
     {
-#ifdef USE_POLL
+#ifdef USE_EPOLL
+            int fd = epoll_events_[i].data.fd;
+            int revent = epoll_events_[i].events;
+#else
         if (pfd->revents > 0)
         {
             --num_events;
             int fd = pfd->fd;
             int revent = pfd->revents;
-#else
-            int fd = epoll_events_[i].data.fd;
-            int revent = epoll_events_[i].events;
 #endif
             auto ch = channels_.find(fd);
             assert(ch != channels_.end());
@@ -178,7 +178,7 @@ void Poller::fill_active_channels(int num_events, ChannelList *active_channels) 
             channel->set_revents(revent);
             // pfd->revents = 0;
             active_channels->push_back(channel);
-#ifdef USE_POLL
+#ifndef USE_EPOLL
         }
 #endif
     }
