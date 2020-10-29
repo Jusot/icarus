@@ -13,20 +13,6 @@
 #include "tcpconnection.hpp"
 #include "eventloopthreadpool.hpp"
 
-namespace
-{
-void default_connection_callback(const icarus::TcpConnectionPtr& conn)
-{
-    // TODO: log
-}
-
-void default_message_callback(const icarus::TcpConnectionPtr &, icarus::Buffer *buf)
-{
-    buf->retrieve_all();
-}
-
-} // namespace
-
 namespace icarus
 {
 
@@ -36,8 +22,8 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listen_addr, std::strin
     name_(std::move(name)),
     acceptor_(new Acceptor(loop, listen_addr)),
     thread_pool_(new EventLoopThreadPool(loop)),
-    connection_callback_(default_connection_callback),
-    message_callback_(default_message_callback),
+    connection_callback_(TcpConnection::default_connection_callback),
+    message_callback_(TcpConnection::default_message_callback),
     started_(false),
     next_conn_id_(1)
 {

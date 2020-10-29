@@ -11,6 +11,16 @@
 
 namespace icarus
 {
+void TcpConnection::default_connection_callback(const icarus::TcpConnectionPtr& conn)
+{
+    // TODO: log
+}
+
+void TcpConnection::default_message_callback(const icarus::TcpConnectionPtr &, icarus::Buffer *buf)
+{
+    buf->retrieve_all();
+}
+
 TcpConnection::TcpConnection(EventLoop* loop,
                              std::string name,
                              int sockfd,

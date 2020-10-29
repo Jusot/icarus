@@ -19,9 +19,13 @@ class EventLoop;
 class Socket;
 class InetAddress;
 
-class TcpConnection : noncopyable,
-                      public std::enable_shared_from_this<TcpConnection>
+class TcpConnection : noncopyable
+                    , public std::enable_shared_from_this<TcpConnection>
 {
+  public:
+    static void default_connection_callback(const TcpConnectionPtr &);
+    static void default_message_callback(const TcpConnectionPtr &, Buffer *buf);
+
   public:
     TcpConnection(EventLoop* loop,
                   std::string name,
