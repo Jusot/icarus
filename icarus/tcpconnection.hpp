@@ -44,6 +44,7 @@ class TcpConnection : noncopyable
     void send(const std::string_view& message);
     void send(Buffer* message);
     void shutdown();
+    void force_close();
 
     void set_context(std::any context);
     const std::any& get_context() const;
@@ -72,6 +73,7 @@ class TcpConnection : noncopyable
     void send_in_loop(const std::string_view& message);
     void send_in_loop(const void* message, size_t len);
     void shutdown_in_loop();
+    void force_close_in_loop();
     void set_state(States s);
 
     EventLoop* loop_;

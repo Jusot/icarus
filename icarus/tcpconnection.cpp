@@ -126,6 +126,17 @@ void TcpConnection::shutdown()
     }
 }
 
+void TcpConnection::force_close()
+{
+    if (state_ == kConnected || state_ == kDisconnecting)
+    {
+        set_state(kDisconnecting);
+        loop_->queue_in_loop([ptr = shared_from_this()] {
+            ptr->force_close_in_loop();
+        });
+    }
+}
+
 void TcpConnection::set_context(std::any context)
 {
     context_ = std::move(context);
@@ -161,7 +172,7 @@ void TcpConnection::connect_established()
     loop_->assert_in_loop_thread();
     assert(state_ == kConnecting);
     set_state(kConnected);
-//    channel_->tie(shared_from_this());
+    // channel_->tie(shared_from_this());
     channel_->enable_reading();
     connection_callback_(shared_from_this());
 }
@@ -175,7 +186,7 @@ void TcpConnection::connect_destroyed()
         channel_->disable_all();
         connection_callback_(shared_from_this());
     }
-    loop_->remove_channel(channel_.get());
+    channel_->remove();
 }
 
 void TcpConnection::handle_read()
@@ -305,6 +316,20 @@ void TcpConnection::shutdown_in_loop()
     if (!channel_->is_writing())
     {
         socket_->shutdown_write();
+    }
+}
+
+void TcpConnection::force_close_in_loop()
+{
+    loop_->assert_in_loop_thread();
+    /**
+     * make sure that handle_close will be called only once
+     *  and handle_close won't be called
+     *  if this connection is not connected
+    */
+    if (state_ == kConnected || state_ == kDisconnecting)
+    {
+        handle_close();
     }
 }
 
