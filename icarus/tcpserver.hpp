@@ -28,7 +28,7 @@ class TcpServer : noncopyable
 
     void set_connection_callback(ConnectionCallback cb);
     void set_message_callback(MessageCallback cb);
-
+    void set_write_complete_callback(WriteCompleteCallback cb);
 
   private:
     void new_connection(int sockfd, const InetAddress& peer_addr);

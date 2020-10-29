@@ -75,6 +75,11 @@ void TcpServer::set_message_callback(MessageCallback cb)
     message_callback_ = std::move(cb);
 }
 
+void TcpServer::set_write_complete_callback(WriteCompleteCallback cb)
+{
+    write_complete_callback_ = std::move(cb);
+}
+
 void TcpServer::new_connection(int sockfd, const InetAddress &peer_addr)
 {
     loop_->assert_in_loop_thread();
