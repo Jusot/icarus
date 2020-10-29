@@ -1,5 +1,5 @@
-#ifndef ICARUS_TCPCLIENT_HPP
-#define ICARUS_TCPCLIENT_HPP
+#ifndef ICARUS_CONNECTOR_HPP
+#define ICARUS_CONNECTOR_HPP
 
 #include <memory>
 #include <functional>
