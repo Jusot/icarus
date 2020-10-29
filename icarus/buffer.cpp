@@ -303,7 +303,7 @@ void Buffer::prepend(const void* data, size_t len)
 void Buffer::shrink(size_t reserve)
 {
     Buffer other;
-    other.ensure_writable_bytes(readable_bytes()+reserve);
+    other.ensure_writable_bytes(readable_bytes() + reserve);
     other.append(to_string_view());
     swap(other);
 }
