@@ -24,7 +24,7 @@ int create_nonblocking_or_die()
 
 int connect(int sockfd, const struct sockaddr *addr)
 {
-    return ::connect(sockfd, addr, static_assert<socklen_t>(sizeof(struct sockaddr_in)));
+    return ::connect(sockfd, addr, static_cast<socklen_t>(sizeof(struct sockaddr_in)));
 }
 
 void bind_or_die(int sockfd, const struct sockaddr *addr)
@@ -189,8 +189,8 @@ struct sockaddr_in get_peer_addr(int sockfd)
 
 bool is_self_connect(int sockfd)
 {
-    struct sockaddr_in localaddr = getLocalAddr(sockfd);
-    struct sockaddr_in peeraddr = getPeerAddr(sockfd);
+    struct sockaddr_in localaddr = get_local_addr(sockfd);
+    struct sockaddr_in peeraddr = get_peer_addr(sockfd);
 
     const struct sockaddr_in* laddr4 = reinterpret_cast<struct sockaddr_in*>(&localaddr);
     const struct sockaddr_in* raddr4 = reinterpret_cast<struct sockaddr_in*>(&peeraddr);
@@ -199,4 +199,4 @@ bool is_self_connect(int sockfd)
         && laddr4->sin_addr.s_addr == raddr4->sin_addr.s_addr;
 }
 
-} // namespace icarus
+} // namespace icarus::sockets
