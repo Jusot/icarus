@@ -12,38 +12,34 @@ using namespace icarus;
 class EchoServer
 {
   public:
-    EchoServer(EventLoop* loop, const InetAddress& listen_addr);
-    void start();
+    EchoServer(EventLoop* loop, const InetAddress& listen_addr)
+      : server_(loop, listen_addr, "echo server")
+    {
+        server_.set_message_callback(on_message);
+    }
+
+    void start()
+    {
+        server_.start();
+    }
+
   private:
-    static void on_message(const TcpConnectionPtr& conn, Buffer* buf);
+    static void on_message(const TcpConnectionPtr& conn, Buffer* buf)
+    {
+        conn->send(buf);
+    }
+
     TcpServer server_;
 };
 
-EchoServer::EchoServer(EventLoop* loop, const InetAddress& listen_addr)
-  : server_(loop, listen_addr, "echo server")
-{
-    server_.set_message_callback([] (const TcpConnectionPtr& conn, Buffer* buf) {
-        EchoServer::on_message(conn, buf);
-    });
-}
-
-void EchoServer::start()
-{
-    server_.start();
-}
-
-void EchoServer::on_message(const TcpConnectionPtr &conn, Buffer *buf)
-{
-    conn->send(buf);
-}
-
 int main()
 {
-//    std::cout << "he" << std::endl;
     EventLoop loop;
-    InetAddress addr(6666);
-    EchoServer echo_server(&loop, addr);
+    InetAddress listen_addr(6666);
+    EchoServer echo_server(&loop, listen_addr);
 
     echo_server.start();
     loop.loop();
+
+    return 0;
 }
