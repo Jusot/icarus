@@ -24,7 +24,7 @@ int create_nonblocking_or_die()
 
 int connect(int sockfd, const struct sockaddr *addr)
 {
-    return ::connect(sockfd, addr, static_cast<socklen_t>(sizeof(struct sockaddr_in)));
+    return ::connect(sockfd, addr, static_cast<socklen_t>(sizeof(struct sockaddr)));
 }
 
 void bind_or_die(int sockfd, const struct sockaddr *addr)
