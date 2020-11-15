@@ -13,7 +13,7 @@ set (CMAKE_SHARED_LINKER_FLAGS "-rdynamic")
 
 file (GLOB SRC_FILES "icarus/*.cpp")
 
-set (CMAKE_CXX_FLAGS "-O3 -Wall")
+set (CMAKE_CXX_FLAGS "-g -Wall")
 
 add_library(icarus SHARED ${SRC_FILES})
 install (TARGETS icarus LIBRARY

@@ -127,7 +127,8 @@ std::size_t EventLoop::queue_size() const
 void EventLoop::wakeup()
 {
     std::uint64_t one = 1;
-    auto n = ::write(wakeup_fd_, &one, sizeof one);
+    //auto n =
+    ::write(wakeup_fd_, &one, sizeof one);
     /*
     if (n != sizeof one)
     {
@@ -176,7 +177,8 @@ void EventLoop::abort_not_in_loop_thread()
 void EventLoop::handle_read()
 {
     std::uint64_t one = 1;
-    auto n = read(wakeup_fd_, &one, sizeof one);
+    //auto n =
+    read(wakeup_fd_, &one, sizeof one);
     /*
     if (n != sizeof one)
     {
