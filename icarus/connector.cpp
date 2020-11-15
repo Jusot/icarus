@@ -172,8 +172,10 @@ void Connector::close(int sockfd)
 void Connector::retry(int sockfd)
 {
     close(sockfd);
-    assert(connect_);
-    loop_->queue_in_loop([this] { this->start_in_loop(); });
+    if (connect_)
+    {
+        loop_->queue_in_loop([this] { this->start_in_loop(); });
+    }
 }
 
 int Connector::detach()
