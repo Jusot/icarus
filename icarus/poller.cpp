@@ -89,7 +89,7 @@ void Poller::update_channel(Channel *channel)
         assert(channels_.count(channel->fd()));
         assert(channels_[channel->fd()] == channel);
 #ifdef USE_EPOLL
-        if (channel->is_none_event())
+        if (!channel->is_none_event())
         {
             epoll_event event;
             event.events = channel->events();
